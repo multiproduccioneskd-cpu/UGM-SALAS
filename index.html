@@ -2,46 +2,74 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Salas UGM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salas UGM - Gestión AV</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen">
+
     <header class="bg-blue-900 p-6 text-white shadow-lg">
         <h1 class="text-2xl font-bold">Salas UGM</h1>
+        <p class="opacity-80 text-sm">Revisión de Equipamiento Audiovisual</p>
     </header>
+
     <div class="max-w-md mx-auto p-4">
-        <input type="text" id="buscador" placeholder="Buscar sala..." class="w-full p-3 border rounded-lg mb-4" onkeyup="filtrar()">
-        <div id="app" class="space-y-4">Cargando...</div>
+        <input type="text" id="buscador" placeholder="Buscar sala por nombre..." 
+               class="w-full p-3 border rounded-lg mb-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-900" 
+               onkeyup="filtrar()">
+
+        <div id="app" class="space-y-4">
+            <p class="text-center text-gray-500 py-10">Cargando salas desde la base de datos...</p>
+        </div>
     </div>
 
     <script>
-        const url = 'PEGA_AQUÍ_TU_NUEVA_URL_QUE_TERMINA_EN_/exec';
-        let datos = [];
+        // URL configurada correctamente
+        const url = 'https://script.google.com/macros/s/AKfycbycbtFHyXXU-KO8vQQ8NCN8A5k3MoOuu88qfsvZiSawZbCtjyaj0ji-wgOrJXgoMuw/exec';
+        let listaSalas = [];
 
         async function cargar() {
             try {
                 const res = await fetch(url);
-                datos = await res.json();
-                render(datos);
+                listaSalas = await res.json();
+                render(listaSalas);
             } catch (e) {
-                document.getElementById('app').innerHTML = 'Error de conexión';
+                document.getElementById('app').innerHTML = `
+                    <div class="bg-red-100 border-l-4 border-red-500 p-4 text-red-700">
+                        <p class="font-bold">Error de conexión</p>
+                        <p class="text-sm">No se pudo cargar la base de datos. Verifica permisos.</p>
+                    </div>`;
             }
         }
 
         function render(data) {
             const app = document.getElementById('app');
+            if (data.length === 0) {
+                app.innerHTML = '<p class="text-center text-gray-500">No se encontraron resultados.</p>';
+                return;
+            }
+            
             app.innerHTML = data.map(s => `
-                <div class="bg-white p-4 rounded shadow border-l-4 ${s['Estado HDMI'] === 'OK' ? 'border-green-500' : 'border-red-500'}">
-                    <h2 class="font-bold text-xl">${s['Nombre Sala']}</h2>
-                    <p>HDMI: ${s['Estado HDMI']} | Switch: ${s['Estado Switch']}</p>
-                    <p>Equipos: ${s['Estado Equipos/Periféricos']}</p>
+                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 ${s['Estado HDMI'] === 'OK' ? 'border-green-500' : 'border-red-500'}">
+                    <h2 class="font-bold text-xl text-blue-900">${s['Nombre Sala']}</h2>
+                    <div class="text-sm text-gray-600 mt-2 space-y-1">
+                        <p><strong>HDMI:</strong> ${s['Estado HDMI']}</p>
+                        <p><strong>Switch:</strong> ${s['Estado Switch']}</p>
+                        <p><strong>Equipos:</strong> ${s['Estado Equipos/Periféricos']}</p>
+                        <p class="text-xs text-gray-400 italic pt-2">Prox. Revisión: ${s['Próxima Revisión'] ? s['Próxima Revisión'].substring(0, 10) : 'N/A'}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <button class="bg-green-600 text-white py-2 rounded text-xs font-bold hover:bg-green-700 transition">INICIAR</button>
+                        <button class="bg-blue-800 text-white py-2 rounded text-xs font-bold hover:bg-blue-900 transition">ACTUALIZAR</button>
+                    </div>
                 </div>
             `).join('');
         }
 
         function filtrar() {
             const busqueda = document.getElementById('buscador').value.toLowerCase();
-            render(datos.filter(s => s['Nombre Sala'].toLowerCase().includes(busqueda)));
+            const filtrados = listaSalas.filter(s => s['Nombre Sala'].toLowerCase().includes(busqueda));
+            render(filtrados);
         }
 
         cargar();
