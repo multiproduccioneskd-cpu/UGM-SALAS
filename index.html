@@ -2,50 +2,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salas UGM - Gestión AV</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen pb-10">
-
-    <header class="bg-blue-900 p-6 text-white shadow-lg">
+<body class="bg-gray-100 p-4">
+    <header class="bg-blue-900 p-6 text-white shadow-lg mb-4 rounded-b-xl">
         <h1 class="text-2xl font-bold">Salas UGM</h1>
-        <p class="opacity-80 text-sm">Panel de Control Audiovisual</p>
     </header>
 
-    <div class="max-w-md mx-auto p-4 space-y-4">
-        
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-            <button onclick="toggle('box1')" class="w-full p-4 text-left font-bold text-blue-900 bg-gray-50 border-b">
-                + Iniciar Nuevo Checklist
-            </button>
-            <div id="box1" class="hidden p-4">
-                <p class="text-sm text-gray-600 mb-2">Selecciona una sala para comenzar:</p>
-                <select id="selectSala" class="w-full p-2 border rounded mb-2">
-                    <option>Sala Magna</option>
-                    <option>Laboratorio A</option>
-                </select>
-                <button class="w-full bg-green-600 text-white py-2 rounded font-bold">Comenzar Revisión</button>
-            </div>
+    <div class="bg-white p-4 rounded-lg shadow mb-4">
+        <h2 class="font-bold text-blue-900 mb-3">➕ Iniciar Nuevo Checklist</h2>
+        <div class="space-y-2">
+            <input type="text" id="nuevaSala" placeholder="Nombre de Sala" class="w-full p-2 border rounded">
+            <input type="text" id="nuevoHDMI" placeholder="Estado HDMI (OK/Falla)" class="w-full p-2 border rounded">
+            <button onclick="alert('Funcionalidad de guardar en desarrollo')" class="w-full bg-green-600 text-white py-2 rounded">Guardar Nueva Revisión</button>
         </div>
+    </div>
 
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-            <button onclick="toggle('box2')" class="w-full p-4 text-left font-bold text-blue-900 bg-gray-50 border-b">
-                + Actualizar Sala
-            </button>
-            <div id="box2" class="hidden p-4">
-                <input type="text" id="buscador" placeholder="Escribe el nombre de la sala..." class="w-full p-2 border rounded mb-2" onkeyup="buscarHistorial()">
-                <div id="resultadoBusqueda" class="text-sm text-gray-500 mt-2"></div>
-            </div>
-        </div>
-
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-            <button onclick="toggle('box3')" class="w-full p-4 text-left font-bold text-blue-900 bg-gray-50 border-b">
-                + Inventario General
-            </button>
-            <div id="box3" class="hidden p-4">
-                <div id="app" class="space-y-2">Cargando datos...</div>
-            </div>
+    <div class="bg-white p-4 rounded-lg shadow">
+        <h2 class="font-bold text-blue-900 mb-3">🔄 Actualizar Registro</h2>
+        <select id="selectHistorial" onchange="cargarDatosEnFormulario()" class="w-full p-2 border rounded mb-2">
+            <option value="">Selecciona una sala registrada...</option>
+        </select>
+        <div id="formEditar" class="hidden space-y-2 mt-2 border-t pt-2">
+            <input type="text" id="editHDMI" placeholder="Estado HDMI" class="w-full p-2 border rounded">
+            <button class="w-full bg-blue-800 text-white py-2 rounded">Guardar Cambios</button>
         </div>
     </div>
 
@@ -57,28 +38,26 @@
             try {
                 const res = await fetch(url);
                 datos = await res.json();
-                renderInventario(datos);
-            } catch (e) { console.error(e); }
+                
+                const select = document.getElementById('selectHistorial');
+                datos.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s['Nombre Sala'];
+                    opt.textContent = s['Nombre Sala'];
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                console.error("Error cargando datos:", e);
+            }
         }
 
-        function toggle(id) { document.getElementById(id).classList.toggle('hidden'); }
-
-        function renderInventario(data) {
-            const app = document.getElementById('app');
-            // Usamos las columnas exactas que vimos en tu Excel
-            app.innerHTML = data.map(s => `
-                <div class="border-b pb-2">
-                    <h3 class="font-bold">${s['Nombre Sala'] || 'N/A'}</h3>
-                    <p class="text-xs text-gray-500">HDMI: ${s['Estado HDMI'] || 'N/A'}</p>
-                </div>
-            `).join('');
-        }
-
-        function buscarHistorial() {
-            const query = document.getElementById('buscador').value.toLowerCase();
-            const res = datos.find(s => (s['Nombre Sala'] || '').toLowerCase().includes(query));
-            document.getElementById('resultadoBusqueda').innerHTML = res ? 
-                `Última revisión: ${res['Fecha Última Revisión'] || 'N/A'}` : 'Sala no encontrada';
+        function cargarDatosEnFormulario() {
+            const salaNombre = document.getElementById('selectHistorial').value;
+            const sala = datos.find(s => s['Nombre Sala'] == salaNombre);
+            if(sala) {
+                document.getElementById('formEditar').classList.remove('hidden');
+                document.getElementById('editHDMI').value = sala['Estado HDMI'] || '';
+            }
         }
 
         cargar();
