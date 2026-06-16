@@ -30,37 +30,77 @@
         <button onclick="abrirVista('formUniversal')" class="w-full bg-[#92400e] text-white p-6 rounded-lg font-bold shadow-lg text-lg border-b-4 border-orange-900 active:scale-95 transition-all">📋 CHECKLIST UNIVERSAL (RÁPIDO)</button>
     </div>
 
+    <div id="formNuevo" class="vista card">
+        <h2 class="font-bold text-blue-900 mb-4 uppercase text-sm border-b pb-2">➕ Nuevo Registro Técnico</h2>
+        <input type="text" id="id" placeholder="ID Sala" class="input-field">
+        <input type="text" id="nombre" placeholder="Nombre Sala" class="input-field">
+        <input type="number" id="hUso" placeholder="Horas de Uso" class="input-field">
+        <input type="text" id="hRest" placeholder="Horas Restantes" class="input-field">
+        <input type="text" id="hdmi" placeholder="Estado HDMI" class="input-field">
+        <input type="text" id="sw" placeholder="Estado Switch" class="input-field">
+        <input type="text" id="eq" placeholder="Estado Equipos" class="input-field">
+        <div class="grid grid-cols-2 gap-2 mb-4">
+            <div><label class="text-[9px] font-bold text-gray-500 uppercase">Última Rev.</label><input type="date" id="fUlt" class="input-field text-xs"></div>
+            <div><label class="text-[9px] font-bold text-gray-500 uppercase">Próxima Rev.</label><input type="date" id="fProx" class="input-field text-xs"></div>
+        </div>
+        <button onclick="guardar('TECNICO')" class="w-full bg-green-700 text-white py-4 rounded-lg font-bold shadow-lg mb-2">GUARDAR DATOS</button>
+        <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg font-bold opacity-80">VOLVER</button>
+    </div>
+
+    <div id="formActualizar" class="vista card">
+        <h2 class="font-bold text-blue-900 mb-4 uppercase text-sm border-b pb-2">🔄 Historial de Salas</h2>
+        <input type="text" id="busc" placeholder="🔍 Escribe nombre de sala..." class="input-field" onkeyup="filtrar()">
+        <div id="resultados" class="space-y-2 h-72 overflow-y-auto mt-2 border-t pt-2"></div>
+        <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg font-bold mt-4">VOLVER AL INICIO</button>
+    </div>
+
     <div id="formUniversal" class="vista card">
         <h2 class="font-bold text-orange-900 mb-4 uppercase text-sm border-b pb-2 italic">📋 Revisión Rápida (Universal)</h2>
         <div class="space-y-4">
             <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-xs font-bold text-gray-600 uppercase">Sala</label>
-                    <input type="text" id="u_sala" placeholder="Ej: Sala 102" class="input-field border-orange-200">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-600 uppercase">Responsable</label>
-                    <input type="text" id="u_tecnico" placeholder="Tu nombre" class="input-field border-orange-200">
-                </div>
+                <div><label class="text-xs font-bold text-gray-600 uppercase">Sala</label><input type="text" id="u_sala" placeholder="Ej: Sala 102" class="input-field border-orange-200"></div>
+                <div><label class="text-xs font-bold text-gray-600 uppercase">Responsable</label><input type="text" id="u_tecnico" placeholder="Tu nombre" class="input-field border-orange-200"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div><label class="text-xs font-bold text-gray-600 uppercase">Fecha</label><input type="text" id="u_fecha_registro" class="input-field select-universal text-sm opacity-70" readonly></div>
+                <div><label class="text-xs font-bold text-gray-600 uppercase">Hora</label><input type="text" id="u_hora_registro" class="input-field select-universal text-sm opacity-70" readonly></div>
             </div>
             
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-xs font-bold text-gray-600 uppercase">Fecha Registro</label>
-                    <input type="text" id="u_fecha_registro" class="input-field select-universal text-sm opacity-70" readonly>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-600 uppercase">Hora Registro</label>
-                    <input type="text" id="u_hora_registro" class="input-field select-universal text-sm opacity-70" readonly>
-                </div>
+            <div>
+                <label class="text-xs font-bold text-gray-600 uppercase">Cable HDMI</label>
+                <select id="u_hdmi_select" class="input-field select-universal" onchange="toggleObv('u_hdmi_select', 'u_hdmi_obv')">
+                    <option value="BUENO">✅ BUENO</option>
+                    <option value="MALO">❌ MALO</option>
+                </select>
+                <input type="text" id="u_hdmi_obv" placeholder="Descripción de la falla..." class="input-field hidden border-red-200 italic text-sm mt-1">
             </div>
-
-            <button onclick="guardar('UNIVERSAL')" class="w-full bg-orange-700 text-white py-4 rounded-lg font-bold shadow-xl border-b-4 border-orange-900">ENVIAR REVISIÓN</button>
+            <div>
+                <label class="text-xs font-bold text-gray-600 uppercase">Proyector</label>
+                <select id="u_proyector_select" class="input-field select-universal" onchange="toggleObv('u_proyector_select', 'u_proyector_obv')">
+                    <option value="DA IMAGEN">✅ DA IMAGEN</option>
+                    <option value="NO DA IMAGEN">❌ NO DA IMAGEN</option>
+                </select>
+                <input type="text" id="u_proyector_obv" placeholder="Descripción de la falla..." class="input-field hidden border-red-200 italic text-sm mt-1">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-600 uppercase">Equipos</label>
+                <select id="u_equipos_select" class="input-field select-universal" onchange="toggleObv('u_equipos_select', 'u_equipos_obv')">
+                    <option value="OPERATIVO">✅ OPERATIVOS</option>
+                    <option value="CON FALLAS">❌ CON FALLAS</option>
+                </select>
+                <input type="text" id="u_equipos_obv" placeholder="Descripción de la falla..." class="input-field hidden border-red-200 italic text-sm mt-1">
+            </div>
+            <button onclick="guardar('UNIVERSAL')" class="w-full bg-orange-700 text-white py-4 rounded-lg font-bold shadow-xl border-b-4 border-orange-900 active:scale-95 transition-all">ENVIAR REVISIÓN</button>
+            <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg font-bold opacity-80 mt-2">CANCELAR</button>
         </div>
     </div>
 
     <script>
-        // Actualizamos la fecha y hora automáticamente
+        const url = 'https://script.google.com/macros/s/AKfycbycbtFHyXXU-KO8vQQ8NCN8A5k3MoOuu88qfsvZiSawZbCtjyaj0ji-wgOrJXgoMuw/exec';
+        let todasLasSalas = [];
+
+        async function cargar() { try { const res = await fetch(url); todasLasSalas = await res.json(); } catch(e){} }
+        
         setInterval(() => {
             const now = new Date();
             document.getElementById('reloj').innerText = now.toLocaleString();
@@ -68,7 +108,63 @@
             document.getElementById('u_fecha_registro').value = now.toLocaleDateString();
         }, 1000);
         
-        // ... (resto de funciones)
+        function abrirVista(id) {
+            document.getElementById('pantallaPrincipal').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+            window.scrollTo(0,0);
+        }
+
+        function volver() {
+            document.querySelectorAll('.vista').forEach(v => v.style.display = 'none');
+            document.getElementById('pantallaPrincipal').style.display = 'block';
+        }
+
+        function toggleObv(selectId, obvId) {
+            const select = document.getElementById(selectId);
+            const obv = document.getElementById(obvId);
+            if (select.value.includes('MALO') || select.value.includes('NO DA') || select.value.includes('FALLAS')) {
+                obv.classList.remove('hidden');
+            } else {
+                obv.classList.add('hidden');
+            }
+        }
+
+        async function guardar(tipo) {
+            let data = {};
+            if(tipo === 'TECNICO') {
+                data = {
+                    id: document.getElementById('id').value, nombre: document.getElementById('nombre').value,
+                    horasUso: document.getElementById('hUso').value, horasRest: document.getElementById('hRest').value,
+                    hdmi: document.getElementById('hdmi').value, switch: document.getElementById('sw').value,
+                    equipos: document.getElementById('eq').value, fUlt: document.getElementById('fUlt').value, fProx: document.getElementById('fProx').value
+                };
+            } else {
+                data = {
+                    id: "UNIVERSAL", 
+                    nombre: document.getElementById('u_sala').value,
+                    hdmi: document.getElementById('u_hdmi_select').value + (document.getElementById('u_hdmi_obv').value ? ' - Obs: ' + document.getElementById('u_hdmi_obv').value : ''),
+                    switch: document.getElementById('u_proyector_select').value + (document.getElementById('u_proyector_obv').value ? ' - Obs: ' + document.getElementById('u_proyector_obv').value : ''),
+                    equipos: document.getElementById('u_equipos_select').value + (document.getElementById('u_equipos_obv').value ? ' - Obs: ' + document.getElementById('u_equipos_obv').value : ''),
+                    fUlt: document.getElementById('u_fecha_registro').value,
+                    responsable: document.getElementById('u_tecnico').value,
+                    hora: document.getElementById('u_hora_registro').value
+                };
+            }
+            await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            alert("✅ Guardado correctamente.");
+            volver();
+        }
+
+        function filtrar() {
+            const query = document.getElementById('busc').value.toLowerCase();
+            const res = document.getElementById('resultados');
+            res.innerHTML = todasLasSalas.filter(s => (s['Nombre Sala'] || "").toLowerCase().includes(query)).map(s => `
+                <div class="p-4 border rounded flex justify-between items-center bg-gray-50 border-blue-100">
+                    <span class="font-bold text-sm text-blue-900">${s['Nombre Sala'] || "Sin Nombre"}</span>
+                    <button onclick="alert('Funcionalidad en espera de migración')" class="bg-blue-900 text-white px-4 py-2 rounded text-xs font-bold">EDITAR</button>
+                </div>`).join('');
+        }
+        cargar();
     </script>
 </body>
 </html>
