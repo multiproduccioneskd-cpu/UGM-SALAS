@@ -2,77 +2,49 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salas UGM - Gestión AV</title>
+    <title>Salas UGM</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-
     <header class="bg-blue-900 p-6 text-white shadow-lg">
         <h1 class="text-2xl font-bold">Salas UGM</h1>
-        <p class="opacity-80">Revisión de Equipamiento Audiovisual</p>
     </header>
-
     <div class="max-w-md mx-auto p-4">
-        <input type="text" id="buscador" placeholder="Buscar sala por nombre..." 
-               class="w-full p-3 border rounded-lg mb-4 shadow-sm" onkeyup="filtrarSalas()">
-
-        <div id="app" class="space-y-4">
-            <p class="text-center text-gray-500">Cargando salas...</p>
-        </div>
+        <input type="text" id="buscador" placeholder="Buscar sala..." class="w-full p-3 border rounded-lg mb-4" onkeyup="filtrar()">
+        <div id="app" class="space-y-4">Cargando...</div>
     </div>
 
     <script>
-        // PEGA TU URL DE GOOGLE APPS SCRIPT AQUÍ
-        const url = 'TU_URL_AQUÍ_QUE_TERMINA_EN_/exec'; 
-        let listaSalas = [];
+        const url = 'PEGA_AQUÍ_TU_NUEVA_URL_QUE_TERMINA_EN_/exec';
+        let datos = [];
 
-        async function cargarSalas() {
+        async function cargar() {
             try {
-                const response = await fetch(url);
-                listaSalas = await response.json();
-                renderizar(listaSalas);
-            } catch (error) {
-                document.getElementById('app').innerHTML = '<p class="text-red-500 text-center">Error de conexión. Verifica la URL o los permisos.</p>';
-                console.error(error);
+                const res = await fetch(url);
+                datos = await res.json();
+                render(datos);
+            } catch (e) {
+                document.getElementById('app').innerHTML = 'Error de conexión';
             }
         }
 
-        function renderizar(data) {
-            const contenedor = document.getElementById('app');
-            contenedor.innerHTML = '';
-            
-            data.forEach(sala => {
-                const nombre = sala['Nombre Sala'] || 'Sin nombre';
-                const hdmi = sala['Estado HDMI'] || 'N/A';
-                const switchE = sala['Estado Switch'] || 'N/A';
-                const equipos = sala['Estado Equipos/Periféricos'] || 'N/A';
-                
-                const card = `
-                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-900">
-                        <h2 class="font-bold text-xl">${nombre}</h2>
-                        <div class="text-sm text-gray-600 mt-2">
-                            <p><strong>HDMI:</strong> ${hdmi}</p>
-                            <p><strong>Switch:</strong> ${switchE}</p>
-                            <p><strong>Equipos:</strong> ${equipos}</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 mt-4">
-                            <button class="bg-green-600 text-white py-2 rounded text-xs font-bold hover:bg-green-700">INICIAR</button>
-                            <button class="bg-blue-600 text-white py-2 rounded text-xs font-bold hover:bg-blue-700">ACTUALIZAR</button>
-                        </div>
-                    </div>
-                `;
-                contenedor.innerHTML += card;
-            });
+        function render(data) {
+            const app = document.getElementById('app');
+            app.innerHTML = data.map(s => `
+                <div class="bg-white p-4 rounded shadow border-l-4 ${s['Estado HDMI'] === 'OK' ? 'border-green-500' : 'border-red-500'}">
+                    <h2 class="font-bold text-xl">${s['Nombre Sala']}</h2>
+                    <p>HDMI: ${s['Estado HDMI']} | Switch: ${s['Estado Switch']}</p>
+                    <p>Equipos: ${s['Estado Equipos/Periféricos']}</p>
+                </div>
+            `).join('');
         }
 
-        function filtrarSalas() {
-            const filtro = document.getElementById('buscador').value.toLowerCase();
-            const filtrados = listaSalas.filter(s => (s['Nombre Sala'] || '').toLowerCase().includes(filtro));
-            renderizar(filtrados);
+        function filtrar() {
+            const busqueda = document.getElementById('buscador').value.toLowerCase();
+            render(datos.filter(s => s['Nombre Sala'].toLowerCase().includes(busqueda)));
         }
 
-        cargarSalas();
+        cargar();
     </script>
 </body>
 </html>
