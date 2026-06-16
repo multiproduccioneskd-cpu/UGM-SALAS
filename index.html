@@ -11,7 +11,6 @@
         .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .input-field { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 10px; font-size: 16px; }
         header { background-color: #111e38; color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid #d4af37; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        /* Estilo para los selectores del Checklist Universal */
         .select-universal { background-color: #f8fafc; font-weight: bold; color: #1e293b; border: 2px solid #e2e8f0; }
     </style>
 </head>
@@ -27,9 +26,7 @@
 
     <div id="pantallaPrincipal" class="space-y-4">
         <button onclick="abrirVista('formNuevo')" class="w-full bg-[#166534] text-white p-6 rounded-lg font-bold shadow-lg text-lg border-b-4 border-green-900 active:scale-95 transition-all">➕ INICIAR NUEVO CHECKLIST</button>
-        
         <button onclick="abrirVista('formActualizar')" class="w-full bg-[#1e40af] text-white p-6 rounded-lg font-bold shadow-lg text-lg border-b-4 border-blue-900 active:scale-95 transition-all">🔄 ACTUALIZAR SALA EXISTENTE</button>
-        
         <button onclick="abrirVista('formUniversal')" class="w-full bg-[#92400e] text-white p-6 rounded-lg font-bold shadow-lg text-lg border-b-4 border-orange-900 active:scale-95 transition-all">📋 CHECKLIST UNIVERSAL (RÁPIDO)</button>
     </div>
 
@@ -60,36 +57,45 @@
     <div id="formUniversal" class="vista card">
         <h2 class="font-bold text-orange-900 mb-4 uppercase text-sm border-b pb-2 italic">📋 Revisión Rápida (Universal)</h2>
         <div class="space-y-4">
-            <div>
-                <label class="text-xs font-bold text-gray-600 uppercase">1. Identificación</label>
-                <input type="text" id="u_sala" placeholder="Nombre o Número de Sala" class="input-field border-orange-200">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-600 uppercase">Sala</label>
+                    <input type="text" id="u_sala" placeholder="Ej: Sala 102" class="input-field border-orange-200">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-600 uppercase">Responsable</label>
+                    <input type="text" id="u_tecnico" placeholder="Tu nombre" class="input-field border-orange-200">
+                </div>
             </div>
-
             <div>
-                <label class="text-xs font-bold text-gray-600 uppercase">2. Estado Cable HDMI</label>
-                <select id="u_hdmi" class="input-field select-universal">
-                    <option value="BUENO">✅ BUENO (Funciona)</option>
-                    <option value="MALO">❌ MALO (Cortado/No conecta)</option>
+                <label class="text-xs font-bold text-gray-600 uppercase">Hora de Registro</label>
+                <input type="text" id="u_hora_registro" class="input-field select-universal text-sm opacity-70" readonly>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-gray-600 uppercase">Cable HDMI</label>
+                <select id="u_hdmi_select" class="input-field select-universal" onchange="toggleObv('u_hdmi_select', 'u_hdmi_obv')">
+                    <option value="BUENO">✅ BUENO</option>
+                    <option value="MALO">❌ MALO</option>
                 </select>
+                <input type="text" id="u_hdmi_obv" placeholder="Descripción de la falla..." class="input-field hidden border-red-200 italic text-sm mt-1">
             </div>
-
             <div>
-                <label class="text-xs font-bold text-gray-600 uppercase">3. Estado del Proyector</label>
-                <select id="u_proyector" class="input-field select-universal">
-                    <option value="DA IMAGEN">✅ DA IMAGEN CORRECTA</option>
-                    <option value="NO DA IMAGEN">❌ NO DA IMAGEN / FALLA</option>
+                <label class="text-xs font-bold text-gray-600 uppercase">Proyector</label>
+                <select id="u_proyector_select" class="input-field select-universal" onchange="toggleObv('u_proyector_select', 'u_proyector_obv')">
+                    <option value="DA IMAGEN">✅ DA IMAGEN</option>
+                    <option value="NO DA IMAGEN">❌ NO DA IMAGEN</option>
                 </select>
+                <input type="text" id="u_proyector_obv" placeholder="Descripción de la falla..." class="input-field hidden border-red-200 italic text-sm mt-1">
             </div>
-
             <div>
-                <label class="text-xs font-bold text-gray-600 uppercase">4. Equipos y Periféricos</label>
-                <select id="u_equipos" class="input-field select-universal">
-                    <option value="OPERATIVO">✅ OPERATIVOS (Todo OK)</option>
-                    <option value="CON FALLAS">❌ CON FALLAS (Mouse/Teclado/PC)</option>
+                <label class="text-xs font-bold text-gray-600 uppercase">Equipos</label>
+                <select id="u_equipos_select" class="input-field select-universal" onchange="toggleObv('u_equipos_select', 'u_equipos_obv')">
+                    <option value="OPERATIVO">✅ OPERATIVOS</option>
+                    <option value="CON FALLAS">❌ CON FALLAS</option>
                 </select>
+                <input type="text" id="u_equipos_obv" placeholder="Descripción de la falla..." class="input-field hidden border-red-200 italic text-sm mt-1">
             </div>
-
-            <button onclick="guardar('UNIVERSAL')" class="w-full bg-orange-700 text-white py-4 rounded-lg font-bold shadow-xl border-b-4 border-orange-900">ENVIAR REVISIÓN AL EXCEL</button>
+            <button onclick="guardar('UNIVERSAL')" class="w-full bg-orange-700 text-white py-4 rounded-lg font-bold shadow-xl border-b-4 border-orange-900 active:scale-95 transition-all">ENVIAR REVISIÓN</button>
             <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg font-bold opacity-80 mt-2">CANCELAR</button>
         </div>
     </div>
@@ -103,6 +109,7 @@
         setInterval(() => {
             const now = new Date();
             document.getElementById('reloj').innerText = now.toLocaleString();
+            document.getElementById('u_hora_registro').value = now.toLocaleTimeString();
         }, 1000);
         
         function abrirVista(id) {
@@ -116,9 +123,18 @@
             document.getElementById('pantallaPrincipal').style.display = 'block';
         }
 
+        function toggleObv(selectId, obvId) {
+            const select = document.getElementById(selectId);
+            const obv = document.getElementById(obvId);
+            if (select.value.includes('MALO') || select.value.includes('NO DA') || select.value.includes('FALLAS')) {
+                obv.classList.remove('hidden');
+            } else {
+                obv.classList.add('hidden');
+            }
+        }
+
         async function guardar(tipo) {
             let data = {};
-            
             if(tipo === 'TECNICO') {
                 data = {
                     id: document.getElementById('id').value, nombre: document.getElementById('nombre').value,
@@ -127,29 +143,20 @@
                     equipos: document.getElementById('eq').value, fUlt: document.getElementById('fUlt').value, fProx: document.getElementById('fProx').value
                 };
             } else {
-                // LÓGICA UNIVERSAL: Mapeamos los campos simplificados a las columnas del Excel
                 data = {
                     id: "UNIVERSAL", 
                     nombre: document.getElementById('u_sala').value,
-                    horasUso: "N/A", 
-                    horasRest: "N/A",
-                    hdmi: document.getElementById('u_hdmi').value, 
-                    switch: document.getElementById('u_proyector').value, // Lo guardamos en la columna switch
-                    equipos: document.getElementById('u_equipos').value, 
-                    fUlt: new Date().toISOString().split('T')[0], // Fecha hoy
-                    fProx: "PENDIENTE"
+                    hdmi: document.getElementById('u_hdmi_select').value + (document.getElementById('u_hdmi_obv').value ? ' - Obs: ' + document.getElementById('u_hdmi_obv').value : ''),
+                    switch: document.getElementById('u_proyector_select').value + (document.getElementById('u_proyector_obv').value ? ' - Obs: ' + document.getElementById('u_proyector_obv').value : ''),
+                    equipos: document.getElementById('u_equipos_select').value + (document.getElementById('u_equipos_obv').value ? ' - Obs: ' + document.getElementById('u_equipos_obv').value : ''),
+                    fUlt: new Date().toISOString().split('T')[0],
+                    responsable: document.getElementById('u_tecnico').value,
+                    hora: document.getElementById('u_hora_registro').value
                 };
             }
-
-            if(!data.nombre) { alert("Por favor, indique el nombre de la sala."); return; }
-
-            try {
-                await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-                alert("✅ Checklist guardado exitosamente en el Excel.");
-                volver();
-                // Limpiar campos
-                if(tipo === 'UNIVERSAL') document.getElementById('u_sala').value = "";
-            } catch(e) { alert("Error de conexión al guardar."); }
+            await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            alert("✅ Guardado correctamente.");
+            volver();
         }
 
         function filtrar() {
@@ -157,14 +164,10 @@
             const res = document.getElementById('resultados');
             res.innerHTML = todasLasSalas.filter(s => (s['Nombre Sala'] || "").toLowerCase().includes(query)).map(s => `
                 <div class="p-4 border rounded flex justify-between items-center bg-gray-50 border-blue-100">
-                    <div class="flex flex-col">
-                        <span class="font-bold text-sm text-blue-900">${s['Nombre Sala'] || "Sin Nombre"}</span>
-                        <span class="text-[9px] text-gray-500 uppercase">Última Rev: ${s['Fecha Última Revisión'] || "N/A"}</span>
-                    </div>
-                    <button onclick="alert('Cargando datos de ${s['Nombre Sala']}...')" class="bg-blue-900 text-white px-4 py-2 rounded text-xs font-bold shadow-md">EDITAR</button>
+                    <span class="font-bold text-sm text-blue-900">${s['Nombre Sala'] || "Sin Nombre"}</span>
+                    <button onclick="alert('Funcionalidad en espera de migración a MS')" class="bg-blue-900 text-white px-4 py-2 rounded text-xs font-bold">EDITAR</button>
                 </div>`).join('');
         }
-        
         cargar();
     </script>
 </body>
