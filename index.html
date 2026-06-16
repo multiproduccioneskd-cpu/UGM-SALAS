@@ -2,98 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Checklist UGM - Gestión Técnica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Salas UGM App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #1a2333; color: white; }
+        body { background-color: #1a2333; color: white; margin: 0; padding: 0; font-family: sans-serif; }
         .vista { display: none; }
-        .card { background: #ffffff; color: #1a2333; border-radius: 12px; padding: 20px; margin-top: 20px; }
-        .input-field { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; }
+        /* Cards compactas para móvil */
+        .card { background: #ffffff; color: #1a2333; border-radius: 12px; padding: 16px; margin: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* Inputs de 16px para evitar el zoom del iPhone */
+        .input-field { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 8px; font-size: 16px; }
+        button { font-size: 16px; }
     </style>
 </head>
-<body class="p-4">
+<body class="p-2">
 
-    <div class="bg-[#1e293b] p-6 rounded-lg mb-6 shadow-xl border-l-4 border-yellow-500">
-        <h1 class="text-xl font-bold uppercase">Checklist Salas UGM</h1>
-        <p class="opacity-70 text-sm">UNIVERSIDAD GABRIELA MISTRAL — GESTIÓN TÉCNICA</p>
-        <p id="reloj" class="text-sm font-mono mt-2 text-yellow-400"></p>
+    <div class="bg-[#1e293b] p-4 text-center shadow-xl border-b-4 border-yellow-500">
+        <h1 class="text-lg font-bold uppercase">Checklist UGM</h1>
+        <p id="reloj" class="text-[10px] font-mono text-yellow-400"></p>
     </div>
 
-    <div id="pantallaPrincipal" class="space-y-4">
-        <button onclick="abrirVista('formNuevo')" class="w-full bg-[#166534] text-white p-6 rounded-xl font-bold text-lg shadow-lg">➕ INICIAR NUEVO CHECKLIST</button>
-        <button onclick="abrirVista('formActualizar')" class="w-full bg-[#991b1b] text-white p-6 rounded-xl font-bold text-lg shadow-lg">🔄 ACTUALIZAR SALA EXISTENTE</button>
+    <div id="pantallaPrincipal" class="p-2 space-y-3">
+        <button onclick="abrirVista('formNuevo')" class="w-full bg-[#166534] text-white p-5 rounded-xl font-bold shadow-lg">➕ NUEVO CHECKLIST</button>
+        <button onclick="abrirVista('formActualizar')" class="w-full bg-[#991b1b] text-white p-5 rounded-xl font-bold shadow-lg">🔄 ACTUALIZAR SALA</button>
     </div>
 
     <div id="formNuevo" class="vista card">
-        <h2 class="font-bold text-blue-900 mb-4 uppercase">➕ Nuevo Checklist</h2>
-        <div class="space-y-1">
-            <input type="text" id="id" placeholder="ID Sala" class="input-field">
-            <input type="text" id="nombre" placeholder="Nombre Sala" class="input-field">
-            <input type="number" id="hUso" placeholder="Horas de Uso" class="input-field">
-            <input type="text" id="hRest" placeholder="Horas Restantes" class="input-field">
-            <input type="text" id="hdmi" placeholder="Estado HDMI" class="input-field">
-            <input type="text" id="sw" placeholder="Estado Switch" class="input-field">
-            <input type="text" id="eq" placeholder="Estado Equipos" class="input-field">
-            <input type="date" id="fUlt" class="input-field">
-            <input type="date" id="fProx" class="input-field">
-            <button onclick="guardar()" class="w-full bg-green-700 text-white py-4 rounded-lg font-bold">GUARDAR DATOS</button>
-            <button onclick="volver()" class="w-full bg-gray-500 text-white py-2 rounded-lg mt-2">Volver</button>
+        <h2 class="font-bold text-blue-900 mb-2 uppercase text-sm">➕ Nuevo Checklist</h2>
+        <input type="text" id="id" placeholder="ID Sala" class="input-field">
+        <input type="text" id="nombre" placeholder="Nombre Sala" class="input-field">
+        <input type="number" id="hUso" placeholder="Horas de Uso" class="input-field">
+        <input type="text" id="hRest" placeholder="Horas Restantes" class="input-field">
+        <input type="text" id="hdmi" placeholder="Estado HDMI" class="input-field">
+        <input type="text" id="sw" placeholder="Estado Switch" class="input-field">
+        <input type="text" id="eq" placeholder="Estado Equipos" class="input-field">
+        <div class="flex gap-2">
+            <input type="date" id="fUlt" class="input-field text-xs">
+            <input type="date" id="fProx" class="input-field text-xs">
         </div>
+        <button onclick="guardar()" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold">GUARDAR</button>
+        <button onclick="volver()" class="w-full bg-gray-400 text-white py-3 rounded-lg mt-2">Volver</button>
     </div>
 
     <div id="formActualizar" class="vista card">
-        <h2 class="font-bold text-blue-900 mb-4 uppercase">🔄 Buscar y Editar</h2>
-        <input type="text" id="busc" placeholder="🔍 Buscar sala..." class="input-field" onkeyup="filtrar()">
-        <div id="resultados" class="space-y-2"></div>
-        <button onclick="volver()" class="w-full bg-gray-500 text-white py-2 rounded-lg mt-4">Volver</button>
+        <h2 class="font-bold text-blue-900 mb-2 uppercase text-sm">🔄 Buscar Sala</h2>
+        <input type="text" id="busc" placeholder="🔍 Buscar nombre..." class="input-field" onkeyup="filtrar()">
+        <div id="resultados" class="space-y-2 h-64 overflow-y-auto"></div>
+        <button onclick="volver()" class="w-full bg-gray-400 text-white py-3 rounded-lg mt-2">Volver</button>
     </div>
 
     <script>
         const url = 'https://script.google.com/macros/s/AKfycbycbtFHyXXU-KO8vQQ8NCN8A5k3MoOuu88qfsvZiSawZbCtjyaj0ji-wgOrJXgoMuw/exec';
         let todasLasSalas = [];
 
-        async function cargar() {
-            const res = await fetch(url);
-            todasLasSalas = await res.json();
-        }
-
-        async function guardar() {
-            const data = {
-                id: document.getElementById('id').value,
-                nombre: document.getElementById('nombre').value,
-                horasUso: document.getElementById('hUso').value,
-                horasRest: document.getElementById('hRest').value,
-                hdmi: document.getElementById('hdmi').value,
-                switch: document.getElementById('sw').value,
-                equipos: document.getElementById('eq').value,
-                fUlt: document.getElementById('fUlt').value,
-                fProx: document.getElementById('fProx').value
-            };
-            await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-            alert("Guardado correctamente");
-            volver();
-        }
-
-        function abrirVista(id) {
-            document.getElementById('pantallaPrincipal').style.display = 'none';
-            document.getElementById(id).style.display = 'block';
-        }
-
-        function volver() {
-            document.querySelectorAll('.vista').forEach(v => v.style.display = 'none');
-            document.getElementById('pantallaPrincipal').style.display = 'block';
-        }
+        async function cargar() { const res = await fetch(url); todasLasSalas = await res.json(); }
 
         function filtrar() {
             const query = document.getElementById('busc').value.toLowerCase();
             const res = document.getElementById('resultados');
             res.innerHTML = todasLasSalas.filter(s => s['Nombre Sala'].toLowerCase().includes(query)).map(s => `
-                <div class="p-3 border rounded flex justify-between">
-                    <span>${s['Nombre Sala']}</span>
-                    <button onclick="alert('Funcionalidad de carga lista')" class="text-blue-900 font-bold">Editar</button>
+                <div class="p-4 border rounded flex justify-between items-center bg-gray-50">
+                    <span class="font-bold text-sm">${s['Nombre Sala']}</span>
+                    <button onclick="alert('Cargando: ${s['Nombre Sala']}')" class="bg-blue-900 text-white px-4 py-2 rounded text-sm">Editar</button>
                 </div>`).join('');
         }
 
+        function abrirVista(id) { document.getElementById('pantallaPrincipal').style.display = 'none'; document.getElementById(id).style.display = 'block'; }
+        function volver() { document.querySelectorAll('.vista').forEach(v => v.style.display = 'none'); document.getElementById('pantallaPrincipal').style.display = 'block'; }
         setInterval(() => document.getElementById('reloj').innerText = new Date().toLocaleString(), 1000);
         cargar();
     </script>
