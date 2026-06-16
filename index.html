@@ -14,16 +14,17 @@
     </header>
 
     <div class="max-w-md mx-auto p-4">
-        <input type="text" id="buscador" placeholder="Buscar sala por nombre o número..." 
+        <input type="text" id="buscador" placeholder="Buscar sala por nombre..." 
                class="w-full p-3 border rounded-lg mb-4 shadow-sm" onkeyup="filtrarSalas()">
 
         <div id="app" class="space-y-4">
-            <p class="text-gray-500 text-center">Cargando datos desde la base...</p>
+            <p class="text-center text-gray-500">Cargando salas...</p>
         </div>
     </div>
 
     <script>
-        const url = 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUÍ'; 
+        // PEGA TU URL DE GOOGLE APPS SCRIPT AQUÍ
+        const url = 'TU_URL_AQUÍ_QUE_TERMINA_EN_/exec'; 
         let listaSalas = [];
 
         async function cargarSalas() {
@@ -32,7 +33,8 @@
                 listaSalas = await response.json();
                 renderizar(listaSalas);
             } catch (error) {
-                document.getElementById('app').innerHTML = '<p class="text-red-500">Error de conexión.</p>';
+                document.getElementById('app').innerHTML = '<p class="text-red-500 text-center">Error de conexión. Verifica la URL o los permisos.</p>';
+                console.error(error);
             }
         }
 
@@ -41,7 +43,6 @@
             contenedor.innerHTML = '';
             
             data.forEach(sala => {
-                // Aquí usamos los nombres exactos de tus columnas
                 const nombre = sala['Nombre Sala'] || 'Sin nombre';
                 const hdmi = sala['Estado HDMI'] || 'N/A';
                 const switchE = sala['Estado Switch'] || 'N/A';
@@ -51,8 +52,9 @@
                     <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-900">
                         <h2 class="font-bold text-xl">${nombre}</h2>
                         <div class="text-sm text-gray-600 mt-2">
-                            <p>HDMI: ${hdmi} | Switch: ${switchE}</p>
-                            <p>Equipos: ${equipos}</p>
+                            <p><strong>HDMI:</strong> ${hdmi}</p>
+                            <p><strong>Switch:</strong> ${switchE}</p>
+                            <p><strong>Equipos:</strong> ${equipos}</p>
                         </div>
                         <div class="grid grid-cols-2 gap-2 mt-4">
                             <button class="bg-green-600 text-white py-2 rounded text-xs font-bold hover:bg-green-700">INICIAR</button>
@@ -66,7 +68,7 @@
 
         function filtrarSalas() {
             const filtro = document.getElementById('buscador').value.toLowerCase();
-            const filtrados = listaSalas.filter(s => s['Nombre Sala'].toLowerCase().includes(filtro));
+            const filtrados = listaSalas.filter(s => (s['Nombre Sala'] || '').toLowerCase().includes(filtro));
             renderizar(filtrados);
         }
 
