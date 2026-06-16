@@ -2,47 +2,89 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Checklist UGM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salas UGM App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #1a2333; } /* Color oscuro de tu segunda foto */
-        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body { background-color: #1a2333; }
+        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .input-field { width: 100%; padding: 12px; margin: 4px 0; border: 1px solid #ddd; border-radius: 8px; }
     </style>
 </head>
 <body class="p-4">
+    <header class="bg-[#1e293b] text-white p-6 rounded-lg mb-6 shadow-xl border-l-4 border-yellow-500">
+        <h1 class="text-xl font-bold uppercase">Checklist Salas UGM</h1>
+        <p class="opacity-70 text-sm">Gestión Técnica Audiovisual</p>
+    </header>
 
-    <div class="bg-[#1e293b] text-white p-6 rounded-lg mb-6 shadow-xl border-l-4 border-yellow-500">
-        <h1 class="text-2xl font-bold">CHECKLIST DE SALAS UGM</h1>
-        <p class="opacity-70">UNIVERSIDAD GABRIELA MISTRAL — GESTIÓN TÉCNICA</p>
-        <p id="fechaHora" class="mt-2 font-mono text-sm"></p>
+    <div class="card">
+        <h2 class="font-bold text-blue-900 mb-3 uppercase text-sm">➕ Iniciar Nuevo Checklist</h2>
+        <div id="formNuevo" class="space-y-1">
+            <input type="text" id="nSala" placeholder="ID Sala" class="input-field">
+            <input type="text" id="nomSala" placeholder="Nombre Sala" class="input-field">
+            <input type="number" id="hUso" placeholder="Horas de Uso" class="input-field">
+            <input type="text" id="hRest" placeholder="Horas Restantes" class="input-field">
+            <input type="text" id="eHdmi" placeholder="Estado HDMI" class="input-field">
+            <input type="text" id="eSw" placeholder="Estado Switch" class="input-field">
+            <input type="text" id="eEq" placeholder="Estado Equipos" class="input-field">
+            <button onclick="guardar()" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold mt-4">GUARDAR DATOS</button>
+        </div>
     </div>
 
     <div class="card">
-        <h2 class="font-bold text-lg mb-4">SELECCIONE OPERACIÓN:</h2>
-        <button onclick="toggle('formNuevo')" class="w-full bg-[#166534] text-white py-4 rounded-lg font-bold mb-3 shadow-lg">➕ INICIAR NUEVO CHECKLIST</button>
-        <button onclick="toggle('formActualizar')" class="w-full bg-[#991b1b] text-white py-4 rounded-lg font-bold shadow-lg">🔄 ACTUALIZAR SALA EXISTENTE</button>
-    </div>
-
-    <div id="formNuevo" class="hidden card">
-        <input type="text" id="nSala" placeholder="ID Sala" class="w-full p-3 border rounded mb-2">
-        <button class="w-full bg-blue-900 text-white py-3 rounded-lg font-bold">GUARDAR NUEVO</button>
-    </div>
-
-    <div id="formActualizar" class="hidden card">
-        <input type="text" placeholder="🔍 Buscar sala..." class="w-full p-3 border rounded mb-4">
-        <div id="lista" class="text-sm"></div>
+        <h2 class="font-bold text-blue-900 mb-3 uppercase text-sm">🔄 Actualizar Sala Existente</h2>
+        <input type="text" id="busc" placeholder="🔍 Buscar sala por nombre..." class="input-field" onkeyup="filtrar()">
+        <div id="listaActualizar" class="mt-4 space-y-2">
+            </div>
     </div>
 
     <script>
-        // Fecha y hora en tiempo real
-        function actualizarReloj() {
-            document.getElementById('fechaHora').innerText = new Date().toLocaleString();
-        }
-        setInterval(actualizarReloj, 1000);
+        // URL ACTUALIZADA
+        const url = 'https://script.google.com/macros/s/AKfycbycbtFHyXXU-KO8vQQ8NCN8A5k3MoOuu88qfsvZiSawZbCtjyaj0ji-wgOrJXgoMuw/exec';
+        let datos = [];
 
-        function toggle(id) {
-            document.getElementById(id).classList.toggle('hidden');
+        async function guardar() {
+            const data = {
+                id: document.getElementById('nSala').value,
+                nombre: document.getElementById('nomSala').value,
+                horasUso: document.getElementById('hUso').value,
+                horasRest: document.getElementById('hRest').value,
+                hdmi: document.getElementById('eHdmi').value,
+                switch: document.getElementById('eSw').value,
+                equipos: document.getElementById('eEq').value,
+                prox: new Date().toISOString()
+            };
+            
+            try {
+                await fetch(url, { method: 'POST', body: JSON.stringify(data) });
+                alert("Guardado exitosamente");
+                location.reload(); // Recarga para limpiar formulario
+            } catch (e) { alert("Error al guardar"); }
         }
+
+        async function cargar() {
+            const res = await fetch(url);
+            datos = await res.json();
+            renderLista(datos);
+        }
+
+        function renderLista(data) {
+            const lista = document.getElementById('listaActualizar');
+            lista.innerHTML = data.map(s => `
+                <div class="p-4 border rounded bg-gray-50 flex justify-between items-center">
+                    <span class="font-bold">${s['Nombre Sala'] || 'N/A'}</span>
+                    <button class="bg-blue-900 text-white px-4 py-1 rounded text-sm">Editar</button>
+                </div>
+            `).join('');
+        }
+
+        function filtrar() {
+            const busqueda = document.getElementById('busc').value.toLowerCase();
+            const filtrados = datos.filter(s => (s['Nombre Sala'] || '').toLowerCase().includes(busqueda));
+            renderLista(filtrados);
+        }
+
+        cargar();
     </script>
 </body>
 </html>
