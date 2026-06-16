@@ -8,7 +8,7 @@
     <style>
         body { background-color: #1a2333; }
         .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .input-field { width: 100%; padding: 10px; margin: 4px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .input-field { width: 100%; padding: 12px; margin: 4px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
     </style>
 </head>
 <body class="p-4">
@@ -36,7 +36,7 @@
 
     <div class="card">
         <h2 class="font-bold text-blue-900 mb-3 uppercase text-sm">🔄 Actualizar Sala</h2>
-        <input type="text" id="busc" placeholder="🔍 Buscar sala por nombre..." class="input-field" onkeyup="filtrar()">
+        <input type="text" id="busc" placeholder="🔍 Buscar sala..." class="input-field" onkeyup="filtrar()">
         <div id="lista" class="mt-2 space-y-2"></div>
     </div>
 
@@ -44,41 +44,60 @@
         const url = 'https://script.google.com/macros/s/AKfycbycbtFHyXXU-KO8vQQ8NCN8A5k3MoOuu88qfsvZiSawZbCtjyaj0ji-wgOrJXgoMuw/exec';
         let todasLasSalas = [];
 
-        // Cargar salas al iniciar
+        async function guardar() {
+            const data = {
+                id: document.getElementById('id').value,
+                nombre: document.getElementById('nombre').value,
+                horasUso: document.getElementById('hUso').value,
+                horasRest: document.getElementById('hRest').value,
+                hdmi: document.getElementById('hdmi').value,
+                switch: document.getElementById('sw').value,
+                equipos: document.getElementById('eq').value,
+                fUlt: document.getElementById('fUlt').value,
+                fProx: document.getElementById('fProx').value
+            };
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                alert("Datos enviados. Verifica tu Excel en unos segundos.");
+                location.reload();
+            } catch (e) { alert("Error al conectar: " + e); }
+        }
+
         async function cargar() {
             const res = await fetch(url);
             todasLasSalas = await res.json();
+            filtrar(); // Mostrar lista inicial
         }
 
-        // Filtrar y mostrar lista
         function filtrar() {
             const query = document.getElementById('busc').value.toLowerCase();
             const lista = document.getElementById('lista');
-            lista.innerHTML = '';
-            todasLasSalas.filter(s => s['Nombre Sala'].toLowerCase().includes(query)).forEach(s => {
-                lista.innerHTML += `
-                    <div class="p-3 border rounded flex justify-between items-center">
-                        <span>${s['Nombre Sala']}</span>
-                        <button onclick="cargarEnFormulario('${s['Nombre Sala']}')" class="bg-blue-900 text-white px-3 py-1 rounded text-sm">Editar</button>
-                    </div>`;
-            });
+            lista.innerHTML = todasLasSalas.filter(s => s['Nombre Sala'].toLowerCase().includes(query)).map(s => `
+                <div class="p-3 border rounded flex justify-between items-center bg-gray-50">
+                    <span class="font-bold">${s['Nombre Sala']}</span>
+                    <button onclick="cargarEnFormulario('${s['Nombre Sala']}')" class="bg-blue-900 text-white px-3 py-1 rounded text-sm">Editar</button>
+                </div>`).join('');
         }
 
-        // Cargar datos en el formulario
         function cargarEnFormulario(nombre) {
-            const sala = todasLasSalas.find(s => s['Nombre Sala'] === nombre);
-            document.getElementById('id').value = sala['ID Sala'];
-            document.getElementById('nombre').value = sala['Nombre Sala'];
-            document.getElementById('hUso').value = sala['Horas de Uso'];
-            document.getElementById('hRest').value = sala['Horas Restantes'];
-            document.getElementById('hdmi').value = sala['Estado HDMI'];
-            document.getElementById('sw').value = sala['Estado Switch'];
-            document.getElementById('eq').value = sala['Estado Equipos/Periféricos'];
-            document.getElementById('tituloForm').innerText = '🔄 Editando: ' + nombre;
+            const s = todasLasSalas.find(x => x['Nombre Sala'] === nombre);
+            document.getElementById('id').value = s['ID Sala'];
+            document.getElementById('nombre').value = s['Nombre Sala'];
+            document.getElementById('hUso').value = s['Horas de Uso'];
+            document.getElementById('hRest').value = s['Horas Restantes'];
+            document.getElementById('hdmi').value = s['Estado HDMI'];
+            document.getElementById('sw').value = s['Estado Switch'];
+            document.getElementById('eq').value = s['Estado Equipos/Periféricos'];
+            document.getElementById('tituloForm').innerText = '🔄 EDITANDO: ' + nombre;
             window.scrollTo(0,0);
         }
-
-        async function guardar() { /* Tu función de guardar igual que antes */ }
 
         cargar();
     </script>
