@@ -2,62 +2,63 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Salas UGM - Gestión AV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salas UGM App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: sans-serif; background: #f3f4f6; }
+        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .input-field { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; }
+    </style>
 </head>
-<body class="bg-gray-100 p-4">
-    <header class="bg-blue-900 p-6 text-white shadow-lg mb-4 rounded-b-xl">
-        <h1 class="text-2xl font-bold">Salas UGM</h1>
-    </header>
+<body>
 
-    <div class="bg-white p-4 rounded-lg shadow mb-4">
-        <h2 class="font-bold text-blue-900 mb-3">➕ Iniciar Nuevo Checklist</h2>
-        <div class="space-y-2">
-            <input type="text" id="nuevaSala" placeholder="Nombre de Sala" class="w-full p-2 border rounded">
-            <input type="text" id="nuevoHDMI" placeholder="Estado HDMI (OK/Falla)" class="w-full p-2 border rounded">
-            <button onclick="alert('Funcionalidad de guardar en desarrollo')" class="w-full bg-green-600 text-white py-2 rounded">Guardar Nueva Revisión</button>
+    <header class="bg-blue-900 text-white p-4 text-center font-bold text-xl">Salas UGM App</header>
+
+    <div class="p-4">
+        <div class="card">
+            <h2 class="font-bold text-blue-900 mb-2">➕ Iniciar Nuevo Checklist</h2>
+            <div id="formNuevo" class="space-y-1">
+                <input type="text" id="nSala" placeholder="ID Sala" class="input-field">
+                <input type="text" id="nomSala" placeholder="Nombre Sala" class="input-field">
+                <input type="number" id="hUso" placeholder="Horas de Uso" class="input-field">
+                <input type="text" id="hRest" placeholder="Horas Restantes" class="input-field">
+                <input type="text" id="eHdmi" placeholder="Estado HDMI" class="input-field">
+                <input type="text" id="eSw" placeholder="Estado Switch" class="input-field">
+                <input type="text" id="eEq" placeholder="Estado Equipos" class="input-field">
+                <input type="date" id="fRev" class="input-field">
+                <button onclick="guardarNuevo()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">GUARDAR DATOS</button>
+            </div>
         </div>
-    </div>
 
-    <div class="bg-white p-4 rounded-lg shadow">
-        <h2 class="font-bold text-blue-900 mb-3">🔄 Actualizar Registro</h2>
-        <select id="selectHistorial" onchange="cargarDatosEnFormulario()" class="w-full p-2 border rounded mb-2">
-            <option value="">Selecciona una sala registrada...</option>
-        </select>
-        <div id="formEditar" class="hidden space-y-2 mt-2 border-t pt-2">
-            <input type="text" id="editHDMI" placeholder="Estado HDMI" class="w-full p-2 border rounded">
-            <button class="w-full bg-blue-800 text-white py-2 rounded">Guardar Cambios</button>
+        <div class="card">
+            <h2 class="font-bold text-blue-900 mb-2">🔄 Actualizar Sala</h2>
+            <input type="text" id="busc" placeholder="🔍 Buscar sala..." class="input-field" onkeyup="filtrar()">
+            <div id="listaActualizar" class="mt-2 h-48 overflow-y-auto"></div>
         </div>
     </div>
 
     <script>
-        const url = 'https://script.google.com/macros/s/AKfycbycbtFHyXXU-KO8vQQ8NCN8A5k3MoOuu88qfsvZiSawZbCtjyaj0ji-wgOrJXgoMuw/exec';
+        const url = 'TU_URL_AQUÍ/exec';
         let datos = [];
 
         async function cargar() {
-            try {
-                const res = await fetch(url);
-                datos = await res.json();
-                
-                const select = document.getElementById('selectHistorial');
-                datos.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s['Nombre Sala'];
-                    opt.textContent = s['Nombre Sala'];
-                    select.appendChild(opt);
-                });
-            } catch (e) {
-                console.error("Error cargando datos:", e);
-            }
+            const res = await fetch(url);
+            datos = await res.json();
+            renderLista();
         }
 
-        function cargarDatosEnFormulario() {
-            const salaNombre = document.getElementById('selectHistorial').value;
-            const sala = datos.find(s => s['Nombre Sala'] == salaNombre);
-            if(sala) {
-                document.getElementById('formEditar').classList.remove('hidden');
-                document.getElementById('editHDMI').value = sala['Estado HDMI'] || '';
-            }
+        function renderLista() {
+            const lista = document.getElementById('listaActualizar');
+            lista.innerHTML = datos.map(s => `
+                <div class="p-3 border-b border-gray-100 active:bg-blue-50" onclick="editar('${s['Nombre Sala']}')">
+                    <span class="font-bold">${s['Nombre Sala']}</span>
+                </div>
+            `).join('');
+        }
+
+        function editar(nombre) {
+            alert("Editando: " + nombre + ". (Conectando formulario...)");
         }
 
         cargar();
