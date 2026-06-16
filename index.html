@@ -11,25 +11,30 @@
         .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .input-field { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 10px; font-size: 16px; }
         header { background-color: #111e38; color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid #d4af37; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        /* Estilo para los selectores del Checklist Universal */
+        .select-universal { background-color: #f8fafc; font-weight: bold; color: #1e293b; border: 2px solid #e2e8f0; }
     </style>
 </head>
 <body class="p-4">
 
     <header>
         <div class="header-titles">
-            <h1 class="font-bold text-lg">CHECKLIST SALAS UGM</h1>
-            <p class="text-xs opacity-70">UNIVERSIDAD GABRIELA MISTRAL — GESTIÓN TÉCNICA</p>
+            <h1 class="font-bold text-lg leading-none">CHECKLIST SALAS UGM</h1>
+            <p class="text-[10px] opacity-70 uppercase mt-1">Gestión Técnica Audiovisual</p>
         </div>
-        <div id="reloj" class="text-right text-xs font-mono text-yellow-400"></div>
+        <div id="reloj" class="text-right text-[10px] font-mono text-yellow-400 font-bold"></div>
     </header>
 
     <div id="pantallaPrincipal" class="space-y-4">
-        <button onclick="abrirVista('formNuevo')" class="w-full bg-[#166534] text-white p-6 rounded-lg font-bold shadow-lg text-lg">➕ INICIAR NUEVO CHECKLIST</button>
-        <button onclick="abrirVista('formActualizar')" class="w-full bg-[#991b1b] text-white p-6 rounded-lg font-bold shadow-lg text-lg">🔄 ACTUALIZAR SALA EXISTENTE</button>
+        <button onclick="abrirVista('formNuevo')" class="w-full bg-[#166534] text-white p-6 rounded-lg font-bold shadow-lg text-lg border-b-4 border-green-900 active:scale-95 transition-all">➕ INICIAR NUEVO CHECKLIST</button>
+        
+        <button onclick="abrirVista('formActualizar')" class="w-full bg-[#1e40af] text-white p-6 rounded-lg font-bold shadow-lg text-lg border-b-4 border-blue-900 active:scale-95 transition-all">🔄 ACTUALIZAR SALA EXISTENTE</button>
+        
+        <button onclick="abrirVista('formUniversal')" class="w-full bg-[#92400e] text-white p-6 rounded-lg font-bold shadow-lg text-lg border-b-4 border-orange-900 active:scale-95 transition-all">📋 CHECKLIST UNIVERSAL (RÁPIDO)</button>
     </div>
 
     <div id="formNuevo" class="vista card">
-        <h2 class="font-bold text-blue-900 mb-4 uppercase text-sm">➕ Nuevo Checklist</h2>
+        <h2 class="font-bold text-blue-900 mb-4 uppercase text-sm border-b pb-2">➕ Nuevo Registro Técnico</h2>
         <input type="text" id="id" placeholder="ID Sala" class="input-field">
         <input type="text" id="nombre" placeholder="Nombre Sala" class="input-field">
         <input type="number" id="hUso" placeholder="Horas de Uso" class="input-field">
@@ -37,52 +42,129 @@
         <input type="text" id="hdmi" placeholder="Estado HDMI" class="input-field">
         <input type="text" id="sw" placeholder="Estado Switch" class="input-field">
         <input type="text" id="eq" placeholder="Estado Equipos" class="input-field">
-        <label class="text-[10px] text-gray-500 font-bold uppercase">Fecha Última Revisión</label>
-        <input type="date" id="fUlt" class="input-field">
-        <label class="text-[10px] text-gray-500 font-bold uppercase">Próxima Revisión</label>
-        <input type="date" id="fProx" class="input-field">
-        <button onclick="guardar()" class="w-full bg-green-700 text-white py-4 rounded-lg font-bold">GUARDAR DATOS</button>
-        <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg mt-2">Volver</button>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+            <div><label class="text-[9px] font-bold text-gray-500 uppercase">Última Rev.</label><input type="date" id="fUlt" class="input-field text-xs"></div>
+            <div><label class="text-[9px] font-bold text-gray-500 uppercase">Próxima Rev.</label><input type="date" id="fProx" class="input-field text-xs"></div>
+        </div>
+        <button onclick="guardar('TECNICO')" class="w-full bg-green-700 text-white py-4 rounded-lg font-bold shadow-lg mb-2">GUARDAR DATOS</button>
+        <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg font-bold opacity-80">VOLVER</button>
     </div>
 
     <div id="formActualizar" class="vista card">
-        <h2 class="font-bold text-blue-900 mb-4 uppercase text-sm">🔄 Buscar Sala</h2>
-        <input type="text" id="busc" placeholder="🔍 Buscar sala..." class="input-field" onkeyup="filtrar()">
-        <div id="resultados" class="space-y-2 h-64 overflow-y-auto"></div>
-        <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg mt-4">Volver</button>
+        <h2 class="font-bold text-blue-900 mb-4 uppercase text-sm border-b pb-2">🔄 Historial de Salas</h2>
+        <input type="text" id="busc" placeholder="🔍 Escribe nombre de sala..." class="input-field" onkeyup="filtrar()">
+        <div id="resultados" class="space-y-2 h-72 overflow-y-auto mt-2 border-t pt-2"></div>
+        <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg font-bold mt-4">VOLVER AL INICIO</button>
+    </div>
+
+    <div id="formUniversal" class="vista card">
+        <h2 class="font-bold text-orange-900 mb-4 uppercase text-sm border-b pb-2 italic">📋 Revisión Rápida (Universal)</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="text-xs font-bold text-gray-600 uppercase">1. Identificación</label>
+                <input type="text" id="u_sala" placeholder="Nombre o Número de Sala" class="input-field border-orange-200">
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-600 uppercase">2. Estado Cable HDMI</label>
+                <select id="u_hdmi" class="input-field select-universal">
+                    <option value="BUENO">✅ BUENO (Funciona)</option>
+                    <option value="MALO">❌ MALO (Cortado/No conecta)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-600 uppercase">3. Estado del Proyector</label>
+                <select id="u_proyector" class="input-field select-universal">
+                    <option value="DA IMAGEN">✅ DA IMAGEN CORRECTA</option>
+                    <option value="NO DA IMAGEN">❌ NO DA IMAGEN / FALLA</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-600 uppercase">4. Equipos y Periféricos</label>
+                <select id="u_equipos" class="input-field select-universal">
+                    <option value="OPERATIVO">✅ OPERATIVOS (Todo OK)</option>
+                    <option value="CON FALLAS">❌ CON FALLAS (Mouse/Teclado/PC)</option>
+                </select>
+            </div>
+
+            <button onclick="guardar('UNIVERSAL')" class="w-full bg-orange-700 text-white py-4 rounded-lg font-bold shadow-xl border-b-4 border-orange-900">ENVIAR REVISIÓN AL EXCEL</button>
+            <button onclick="volver()" class="w-full bg-gray-500 text-white py-3 rounded-lg font-bold opacity-80 mt-2">CANCELAR</button>
+        </div>
     </div>
 
     <script>
         const url = 'https://script.google.com/macros/s/AKfycbycbtFHyXXU-KO8vQQ8NCN8A5k3MoOuu88qfsvZiSawZbCtjyaj0ji-wgOrJXgoMuw/exec';
         let todasLasSalas = [];
 
-        async function cargar() { const res = await fetch(url); todasLasSalas = await res.json(); }
+        async function cargar() { try { const res = await fetch(url); todasLasSalas = await res.json(); } catch(e){} }
         
-        setInterval(() => document.getElementById('reloj').innerText = new Date().toLocaleString(), 1000);
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('reloj').innerText = now.toLocaleString();
+        }, 1000);
         
-        function abrirVista(id) { document.getElementById('pantallaPrincipal').style.display = 'none'; document.getElementById(id).style.display = 'block'; }
-        function volver() { document.querySelectorAll('.vista').forEach(v => v.style.display = 'none'); document.getElementById('pantallaPrincipal').style.display = 'block'; }
+        function abrirVista(id) {
+            document.getElementById('pantallaPrincipal').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+            window.scrollTo(0,0);
+        }
 
-        async function guardar() {
-            const data = {
-                id: document.getElementById('id').value, nombre: document.getElementById('nombre').value,
-                horasUso: document.getElementById('hUso').value, horasRest: document.getElementById('hRest').value,
-                hdmi: document.getElementById('hdmi').value, switch: document.getElementById('sw').value,
-                equipos: document.getElementById('eq').value, fUlt: document.getElementById('fUlt').value, fProx: document.getElementById('fProx').value
-            };
-            await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-            alert("Guardado correctamente"); volver();
+        function volver() {
+            document.querySelectorAll('.vista').forEach(v => v.style.display = 'none');
+            document.getElementById('pantallaPrincipal').style.display = 'block';
+        }
+
+        async function guardar(tipo) {
+            let data = {};
+            
+            if(tipo === 'TECNICO') {
+                data = {
+                    id: document.getElementById('id').value, nombre: document.getElementById('nombre').value,
+                    horasUso: document.getElementById('hUso').value, horasRest: document.getElementById('hRest').value,
+                    hdmi: document.getElementById('hdmi').value, switch: document.getElementById('sw').value,
+                    equipos: document.getElementById('eq').value, fUlt: document.getElementById('fUlt').value, fProx: document.getElementById('fProx').value
+                };
+            } else {
+                // LÓGICA UNIVERSAL: Mapeamos los campos simplificados a las columnas del Excel
+                data = {
+                    id: "UNIVERSAL", 
+                    nombre: document.getElementById('u_sala').value,
+                    horasUso: "N/A", 
+                    horasRest: "N/A",
+                    hdmi: document.getElementById('u_hdmi').value, 
+                    switch: document.getElementById('u_proyector').value, // Lo guardamos en la columna switch
+                    equipos: document.getElementById('u_equipos').value, 
+                    fUlt: new Date().toISOString().split('T')[0], // Fecha hoy
+                    fProx: "PENDIENTE"
+                };
+            }
+
+            if(!data.nombre) { alert("Por favor, indique el nombre de la sala."); return; }
+
+            try {
+                await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                alert("✅ Checklist guardado exitosamente en el Excel.");
+                volver();
+                // Limpiar campos
+                if(tipo === 'UNIVERSAL') document.getElementById('u_sala').value = "";
+            } catch(e) { alert("Error de conexión al guardar."); }
         }
 
         function filtrar() {
             const query = document.getElementById('busc').value.toLowerCase();
             const res = document.getElementById('resultados');
-            res.innerHTML = todasLasSalas.filter(s => s['Nombre Sala'].toLowerCase().includes(query)).map(s => `
-                <div class="p-4 border rounded flex justify-between items-center bg-gray-50">
-                    <span class="font-bold text-sm">${s['Nombre Sala']}</span>
-                    <button onclick="alert('Cargando: ${s['Nombre Sala']}')" class="bg-blue-900 text-white px-4 py-2 rounded text-sm">Editar</button>
+            res.innerHTML = todasLasSalas.filter(s => (s['Nombre Sala'] || "").toLowerCase().includes(query)).map(s => `
+                <div class="p-4 border rounded flex justify-between items-center bg-gray-50 border-blue-100">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-sm text-blue-900">${s['Nombre Sala'] || "Sin Nombre"}</span>
+                        <span class="text-[9px] text-gray-500 uppercase">Última Rev: ${s['Fecha Última Revisión'] || "N/A"}</span>
+                    </div>
+                    <button onclick="alert('Cargando datos de ${s['Nombre Sala']}...')" class="bg-blue-900 text-white px-4 py-2 rounded text-xs font-bold shadow-md">EDITAR</button>
                 </div>`).join('');
         }
+        
         cargar();
     </script>
 </body>
