@@ -3,62 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist - Salas UGM</title>
+    <title>Salas UGM - Gestión AV</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-4">
+<body class="bg-gray-100">
 
-    <div class="max-w-md mx-auto">
-        <header class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Salas UGM</h1>
-            <p class="text-gray-600">Revisión de Equipamiento Audiovisual</p>
-        </header>
+    <header class="bg-blue-900 p-6 text-white shadow-lg">
+        <h1 class="text-2xl font-bold">Salas UGM</h1>
+        <p class="opacity-80">Revisión de Equipamiento Audiovisual</p>
+    </header>
 
-        <!-- Contenedor donde se cargarán las salas -->
+    <div class="max-w-md mx-auto p-4">
+        <input type="text" id="buscador" placeholder="Buscar sala por nombre o número..." 
+               class="w-full p-3 border rounded-lg mb-4 shadow-sm" onkeyup="filtrarSalas()">
+
         <div id="app" class="space-y-4">
-            <p class="text-gray-500 animate-pulse">Cargando salas...</p>
+            <p class="text-gray-500 text-center">Cargando datos desde la base...</p>
         </div>
     </div>
 
     <script>
-        // Tu URL de Google Apps Script configurada
-        const url = 'https://script.google.com/macros/s/AKfycbw7Ed8bTC6-FRJWCX1P97Butr6prP5fWXCH6DGdYusGDUu1N-Lt5WpDW_4Uv2MzzzM/exec'; 
+        const url = 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUÍ'; 
+        let listaSalas = [];
 
         async function cargarSalas() {
-            const contenedor = document.getElementById('app');
             try {
                 const response = await fetch(url);
-                const data = await response.json();
-                
-                contenedor.innerHTML = ''; // Limpiar mensaje de carga
-                
-                data.forEach(sala => {
-                    // Lógica para marcar en rojo si algo falla
-                    const esFalla = sala['Estado HDMI'] !== 'OK' || 
-                                    sala['Estado Switch'] !== 'OK' || 
-                                    sala['Estado Equipos/Periféricos'] !== 'OK';
-                    
-                    const card = `
-                        <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 ${esFalla ? 'border-red-500' : 'border-green-500'}">
-                            <h2 class="font-bold text-lg">${sala['Nombre Sala']}</h2>
-                            <div class="text-sm text-gray-600 mt-2 space-y-1">
-                                <p><strong>Horas uso:</strong> ${sala['Horas de Uso']} / ${sala['Horas Restantes']}</p>
-                                <p><strong>HDMI:</strong> ${sala['Estado HDMI']}</p>
-                                <p><strong>Switch:</strong> ${sala['Estado Switch']}</p>
-                                <p><strong>Equipos:</strong> ${sala['Estado Equipos/Periféricos']}</p>
-                                <p class="mt-2 text-xs text-gray-400 italic">Próxima revisión: ${sala['Próxima Revisión']}</p>
-                            </div>
-                            <button class="mt-4 w-full bg-blue-600 text-white py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition">
-                                Realizar Revisión
-                            </button>
-                        </div>
-                    `;
-                    contenedor.innerHTML += card;
-                });
+                listaSalas = await response.json();
+                renderizar(listaSalas);
             } catch (error) {
-                contenedor.innerHTML = '<p class="text-red-500 text-center font-bold">Error al conectar con la base de datos. Verifica los permisos del Script.</p>';
-                console.error("Error:", error);
+                document.getElementById('app').innerHTML = '<p class="text-red-500">Error de conexión.</p>';
             }
+        }
+
+        function renderizar(data) {
+            const contenedor = document.getElementById('app');
+            contenedor.innerHTML = '';
+            
+            data.forEach(sala => {
+                // Aquí usamos los nombres exactos de tus columnas
+                const nombre = sala['Nombre Sala'] || 'Sin nombre';
+                const hdmi = sala['Estado HDMI'] || 'N/A';
+                const switchE = sala['Estado Switch'] || 'N/A';
+                const equipos = sala['Estado Equipos/Periféricos'] || 'N/A';
+                
+                const card = `
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-900">
+                        <h2 class="font-bold text-xl">${nombre}</h2>
+                        <div class="text-sm text-gray-600 mt-2">
+                            <p>HDMI: ${hdmi} | Switch: ${switchE}</p>
+                            <p>Equipos: ${equipos}</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-4">
+                            <button class="bg-green-600 text-white py-2 rounded text-xs font-bold hover:bg-green-700">INICIAR</button>
+                            <button class="bg-blue-600 text-white py-2 rounded text-xs font-bold hover:bg-blue-700">ACTUALIZAR</button>
+                        </div>
+                    </div>
+                `;
+                contenedor.innerHTML += card;
+            });
+        }
+
+        function filtrarSalas() {
+            const filtro = document.getElementById('buscador').value.toLowerCase();
+            const filtrados = listaSalas.filter(s => s['Nombre Sala'].toLowerCase().includes(filtro));
+            renderizar(filtrados);
         }
 
         cargarSalas();
