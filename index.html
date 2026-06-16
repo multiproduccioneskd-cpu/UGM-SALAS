@@ -2,23 +2,21 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salas UGM App</title>
+    <title>Salas UGM - Gestión AV</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: sans-serif; background: #f3f4f6; }
         .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .input-field { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen pb-10">
 
-    <header class="bg-blue-900 text-white p-4 text-center font-bold text-xl">Salas UGM App</header>
+    <header class="bg-blue-900 p-6 text-white shadow-lg text-center font-bold text-xl">Salas UGM</header>
 
     <div class="p-4">
         <div class="card">
             <h2 class="font-bold text-blue-900 mb-2">➕ Iniciar Nuevo Checklist</h2>
-            <div id="formNuevo" class="space-y-1">
+            <div class="space-y-1">
                 <input type="text" id="nSala" placeholder="ID Sala" class="input-field">
                 <input type="text" id="nomSala" placeholder="Nombre Sala" class="input-field">
                 <input type="number" id="hUso" placeholder="Horas de Uso" class="input-field">
@@ -27,38 +25,43 @@
                 <input type="text" id="eSw" placeholder="Estado Switch" class="input-field">
                 <input type="text" id="eEq" placeholder="Estado Equipos" class="input-field">
                 <input type="date" id="fRev" class="input-field">
-                <button onclick="guardarNuevo()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">GUARDAR DATOS</button>
+                <button onclick="alert('Pendiente configurar doPost')" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">GUARDAR DATOS</button>
             </div>
         </div>
 
         <div class="card">
-            <h2 class="font-bold text-blue-900 mb-2">🔄 Actualizar Sala</h2>
+            <h2 class="font-bold text-blue-900 mb-2">🔄 Actualizar Registro</h2>
             <input type="text" id="busc" placeholder="🔍 Buscar sala..." class="input-field" onkeyup="filtrar()">
             <div id="listaActualizar" class="mt-2 h-48 overflow-y-auto"></div>
         </div>
     </div>
 
     <script>
-        const url = 'TU_URL_AQUÍ/exec';
+        const url = 'https://script.google.com/macros/s/AKfycbycbtFHyXXU-KO8vQQ8NCN8A5k3MoOuu88qfsvZiSawZbCtjyaj0ji-wgOrJXgoMuw/exec';
         let datos = [];
 
         async function cargar() {
-            const res = await fetch(url);
-            datos = await res.json();
-            renderLista();
+            try {
+                const res = await fetch(url);
+                datos = await res.json();
+                renderLista();
+            } catch (e) { console.error(e); }
         }
 
         function renderLista() {
             const lista = document.getElementById('listaActualizar');
             lista.innerHTML = datos.map(s => `
                 <div class="p-3 border-b border-gray-100 active:bg-blue-50" onclick="editar('${s['Nombre Sala']}')">
-                    <span class="font-bold">${s['Nombre Sala']}</span>
+                    <span class="font-bold">${s['Nombre Sala'] || 'N/A'}</span>
                 </div>
             `).join('');
         }
 
-        function editar(nombre) {
-            alert("Editando: " + nombre + ". (Conectando formulario...)");
+        function filtrar() {
+            const busqueda = document.getElementById('busc').value.toLowerCase();
+            const lista = document.getElementById('listaActualizar');
+            lista.innerHTML = datos.filter(s => (s['Nombre Sala'] || '').toLowerCase().includes(busqueda))
+                                  .map(s => `<div class="p-3 border-b">${s['Nombre Sala']}</div>`).join('');
         }
 
         cargar();
