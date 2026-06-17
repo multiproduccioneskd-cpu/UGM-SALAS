@@ -108,25 +108,15 @@
             document.getElementById('u_fecha_registro').value = now.toLocaleDateString();
         }, 1000);
         
-        function abrirVista(id) {
-            document.getElementById('pantallaPrincipal').style.display = 'none';
-            document.getElementById(id).style.display = 'block';
-            window.scrollTo(0,0);
-        }
-
-        function volver() {
-            document.querySelectorAll('.vista').forEach(v => v.style.display = 'none');
-            document.getElementById('pantallaPrincipal').style.display = 'block';
-        }
+        function abrirVista(id) { document.getElementById('pantallaPrincipal').style.display = 'none'; document.getElementById(id).style.display = 'block'; window.scrollTo(0,0); }
+        function volver() { document.querySelectorAll('.vista').forEach(v => v.style.display = 'none'); document.getElementById('pantallaPrincipal').style.display = 'block'; }
 
         function toggleObv(selectId, obvId) {
             const select = document.getElementById(selectId);
             const obv = document.getElementById(obvId);
             if (select.value.includes('MALO') || select.value.includes('NO DA') || select.value.includes('FALLAS')) {
                 obv.classList.remove('hidden');
-            } else {
-                obv.classList.add('hidden');
-            }
+            } else { obv.classList.add('hidden'); }
         }
 
         async function guardar(tipo) {
@@ -142,10 +132,12 @@
                 data = {
                     id: "UNIVERSAL", 
                     nombre: document.getElementById('u_sala').value,
+                    horasUso: "N/A", horasRest: "N/A",
                     hdmi: document.getElementById('u_hdmi_select').value + (document.getElementById('u_hdmi_obv').value ? ' - Obs: ' + document.getElementById('u_hdmi_obv').value : ''),
                     switch: document.getElementById('u_proyector_select').value + (document.getElementById('u_proyector_obv').value ? ' - Obs: ' + document.getElementById('u_proyector_obv').value : ''),
                     equipos: document.getElementById('u_equipos_select').value + (document.getElementById('u_equipos_obv').value ? ' - Obs: ' + document.getElementById('u_equipos_obv').value : ''),
                     fUlt: document.getElementById('u_fecha_registro').value,
+                    fProx: "PENDIENTE",
                     responsable: document.getElementById('u_tecnico').value,
                     hora: document.getElementById('u_hora_registro').value
                 };
@@ -162,7 +154,7 @@
                 <div class="p-4 border rounded flex justify-between items-center bg-gray-50 border-blue-100">
                     <span class="font-bold text-sm text-blue-900">${s['Nombre Sala'] || "Sin Nombre"}</span>
                     <button onclick="alert('Funcionalidad en espera de migración')" class="bg-blue-900 text-white px-4 py-2 rounded text-xs font-bold">EDITAR</button>
-                </div>`).join('');
+                </div>`).join('').replace('null', '');
         }
         cargar();
     </script>
