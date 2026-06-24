@@ -5,6 +5,7 @@ export default async function handler(req, res) {
     const data = req.body;
 
     try {
+        // 1. Obtener Token
         const tokenResponse = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -15,12 +16,15 @@ export default async function handler(req, res) {
                 grant_type: 'client_credentials'
             })
         });
-        const { access_token } = await tokenResponse.json();
+        const tokenData = await tokenResponse.json();
+        if (!tokenData.access_token) throw new Error("No se pudo obtener el token");
 
+        // 2. Enviar datos a SharePoint
+        // Usamos los nombres más probables. Si falla, revisa el error en los logs de Vercel.
         const result = await fetch(`https://graph.microsoft.com/v1.0/sites/${SITE_ID}/lists/${LIST_ID}/items`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${access_token}`,
+                'Authorization': `Bearer ${tokenData.access_token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -40,11 +44,14 @@ export default async function handler(req, res) {
             })
         });
 
+        const responseData = await result.json();
+
         if (result.ok) {
-            res.status(200).json({ success: true });
+            res.status(200).json({ success: true, data: responseData });
         } else {
-            const error = await result.json();
-            res.status(500).json({ error });
+            // AQUÍ VERÁS EL ERROR EXACTO EN LOS LOGS DE VERCEL SI FALLA
+            console.error("Error de Microsoft:", JSON.stringify(responseData));
+            res.status(500).json({ error: responseData });
         }
     } catch (e) {
         res.status(500).json({ error: e.message });
