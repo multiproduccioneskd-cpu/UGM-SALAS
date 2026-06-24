@@ -1,12 +1,10 @@
-// api/guardar.js
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).send('Solo POST');
-
+    if (req.method !== 'POST') return res.status(405).end();
+    
     const { CLIENT_ID, CLIENT_SECRET, TENANT_ID, SITE_ID, LIST_ID } = process.env;
     const data = req.body;
 
     try {
-        // 1. Obtener Token de Microsoft
         const tokenResponse = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -19,8 +17,7 @@ export default async function handler(req, res) {
         });
         const { access_token } = await tokenResponse.json();
 
-        // 2. Enviar datos a SharePoint (Crear item)
-        const sharepointResponse = await fetch(`https://graph.microsoft.com/v1.0/sites/${SITE_ID}/lists/${LIST_ID}/items`, {
+        const result = await fetch(`https://graph.microsoft.com/v1.0/sites/${SITE_ID}/lists/${LIST_ID}/items`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${access_token}`,
@@ -28,27 +25,28 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 fields: {
-                    Title: data.id || "Checklist", // SharePoint siempre pide 'Title'
+                    Title: data.id || "Checklist",
+                    IDSala: data.id,
                     NombreSala: data.nombre,
                     HorasdeUso: data.horasUso,
-                    HorasRestantes: data.horasRest,
                     EstadoHDMI: data.hdmi,
                     EstadoSwitch: data.switch,
-                    EstadoEquiposPerifericos: data.equipos,
-                    FechaUltimaRevision: data.fUlt,
-                    ProximaRevision: data.fProx,
+                    EstadoequiposP: data.equipos,
+                    FechaUltimaRevisin: data.fUlt,
+                    ProximaRevisin: data.fProx,
                     Responsable: data.responsable,
-                    HoraReg: data.hora
+                    FechaHora: data.hora
                 }
             })
         });
 
-        if (sharepointResponse.ok) {
-            res.status(200).json({ message: 'Guardado con éxito' });
+        if (result.ok) {
+            res.status(200).json({ success: true });
         } else {
-            res.status(500).json({ error: 'Error al escribir en SharePoint' });
+            const error = await result.json();
+            res.status(500).json({ error });
         }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
     }
 }
