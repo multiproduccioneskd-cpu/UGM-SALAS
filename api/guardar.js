@@ -1,11 +1,23 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).end();
-    
+    // Solo permitir peticiones POST
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: "Método no permitido" });
+    }
+
+    // Obtener variables de entorno
     const { CLIENT_ID, CLIENT_SECRET, TENANT_ID, SITE_ID, LIST_ID } = process.env;
+
+    // Depuración: Verificar que las variables existen
+    if (!CLIENT_ID || !CLIENT_SECRET || !TENANT_ID || !SITE_ID || !LIST_ID) {
+        console.error("Error: Faltan variables de entorno en Vercel");
+        return res.status(500).json({ error: "Faltan variables de configuración en el servidor" });
+    }
+
     const data = req.body;
+    console.log("Datos recibidos de la App:", JSON.stringify(data));
 
     try {
-        // 1. Obtener Token
+        // 1. Obtener Token de Microsoft
         const tokenResponse = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -16,11 +28,15 @@ export default async function handler(req, res) {
                 grant_type: 'client_credentials'
             })
         });
+
         const tokenData = await tokenResponse.json();
-        if (!tokenData.access_token) throw new Error("No se pudo obtener el token");
+        
+        if (!tokenData.access_token) {
+            console.error("Error al obtener token:", tokenData);
+            return res.status(500).json({ error: "No se pudo obtener token de Microsoft" });
+        }
 
         // 2. Enviar datos a SharePoint
-        // Usamos los nombres más probables. Si falla, revisa el error en los logs de Vercel.
         const result = await fetch(`https://graph.microsoft.com/v1.0/sites/${SITE_ID}/lists/${LIST_ID}/items`, {
             method: 'POST',
             headers: {
@@ -47,13 +63,14 @@ export default async function handler(req, res) {
         const responseData = await result.json();
 
         if (result.ok) {
-            res.status(200).json({ success: true, data: responseData });
+            console.log("Guardado exitoso en SharePoint");
+            res.status(200).json({ success: true });
         } else {
-            // AQUÍ VERÁS EL ERROR EXACTO EN LOS LOGS DE VERCEL SI FALLA
-            console.error("Error de Microsoft:", JSON.stringify(responseData));
+            console.error("Error de SharePoint:", JSON.stringify(responseData));
             res.status(500).json({ error: responseData });
         }
     } catch (e) {
+        console.error("Error crítico en el servidor:", e.message);
         res.status(500).json({ error: e.message });
     }
 }
